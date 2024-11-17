@@ -54,6 +54,7 @@ terraform.tfstate.backup
 *.tfvars
 .terraformrc
 terraform.rc
+infrastructure/.terraform.lock.hcl
 
 # Testing
 .coverage
