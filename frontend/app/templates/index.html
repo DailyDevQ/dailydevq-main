@@ -1,0 +1,16 @@
+<!-- frontend/app/templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 메인 페이지 콘텐츠 -->
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-4 mb-4">Welcome to DailyDevQ</h1>
+        <p class="lead mb-4">Enhance your technical interview skills with daily programming questions</p>
+        <div class="d-grid gap-2 d-md-block">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-2">Get Started</a>
+            <a href="{{ url_for('main.about') }}" class="btn btn-outline-secondary btn-lg">Learn More</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
