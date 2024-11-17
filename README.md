@@ -110,11 +110,11 @@ dailydevq-main/
 ├── requirements/
 │   ├── base.txt                # 기본 패키지 목록
 │   ├── dev.txt                 # 개발용 패키지
-│   ├── test.txt                # 테스트용 패키지
-│   └── requirements_split.py   # requirements 파일 생성 스크립트
+│   └── test.txt                # 테스트용 패키지
+├── requirements_split.py       # requirements 파일 생성 스크립트
 ├── .gitignore                  # Git에서 제외할 파일 목록
 ├── LICENSE                     # 라이선스 파일
-├── MAIN-LOGO.jpg               # 서비스 로고 이미지
+├── MAIN-LOGO.jpg               # DailyDevQ 샘플 로고 이미지
 ├── README.md                   # 프로젝트 설명 파일
 └── .env                        # 환경 변수 파일 (Git에 업로드 금지) 따로 생성 후 사용.
 ```
