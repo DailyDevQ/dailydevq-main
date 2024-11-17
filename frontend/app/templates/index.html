@@ -1,16 +1,20 @@
 <!-- frontend/app/templates/index.html -->
-{% extends "base.html" %}
 
-{% block content %}
-<!-- 메인 페이지 콘텐츠 -->
-<div class="row">
-    <div class="col-md-8 offset-md-2 text-center">
-        <h1 class="display-4 mb-4">Welcome to DailyDevQ</h1>
-        <p class="lead mb-4">Enhance your technical interview skills with daily programming questions</p>
-        <div class="d-grid gap-2 d-md-block">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-2">Get Started</a>
-            <a href="{{ url_for('main.about') }}" class="btn btn-outline-secondary btn-lg">Learn More</a>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>소셜 로그인 테스트</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>소셜 로그인 테스트</h1>
+        <div class="mt-3">
+            <a href="{{ url_for('login_google') }}" class="btn btn-danger">Google 로그인</a>
+            <a href="{{ url_for('login_kakao') }}" class="btn btn-warning">Kakao 로그인</a>
+            <a href="{{ url_for('login_naver') }}" class="btn btn-success">Naver 로그인</a>
         </div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>
