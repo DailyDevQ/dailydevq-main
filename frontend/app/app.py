@@ -1,25 +1,32 @@
 # frontend/app/app.py
 
-from flask import Flask, render_template, redirect, request, session, url_for
+from flask import Flask, render_template, redirect, request, url_for
+import os
+from dotenv import load_dotenv
 import requests
 
+# .env 파일 로드
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = 'YOUR_SECRET_KEY'
+app.secret_key = os.urandom(24)
 
-# Google OAuth 설정
-GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'
-GOOGLE_CLIENT_SECRET = 'YOUR_GOOGLE_CLIENT_SECRET'
+# 환경 변수에서 클라이언트 ID와 시크릿 키 가져오기
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
+KAKAO_CLIENT_ID = os.getenv('KAKAO_CLIENT_ID')
+NAVER_CLIENT_ID = os.getenv('NAVER_CLIENT_ID')
+NAVER_CLIENT_SECRET = os.getenv('NAVER_CLIENT_SECRET')
+
+# 리디렉션 URI 설정
 GOOGLE_REDIRECT_URI = 'http://localhost:5000/login/google/callback'
-
-# Kakao OAuth 설정
-KAKAO_CLIENT_ID = 'YOUR_KAKAO_CLIENT_ID'
+GITHUB_REDIRECT_URI = 'http://localhost:5000/login/github/callback'
 KAKAO_REDIRECT_URI = 'http://localhost:5000/login/kakao/callback'
-
-# Naver OAuth 설정
-NAVER_CLIENT_ID = 'YOUR_NAVER_CLIENT_ID'
-NAVER_CLIENT_SECRET = 'YOUR_NAVER_CLIENT_SECRET'
 NAVER_REDIRECT_URI = 'http://localhost:5000/login/naver/callback'
 
+# 구글 API 로그인 라우트
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -55,6 +62,50 @@ def google_callback():
     email = user_info.get('email')
     return f'Google 로그인 성공: {email}'
 
+# 깃허브 API 로그인 라우트
+@app.route('/login/github')
+def login_github():
+    github_auth_url = (
+        'https://github.com/login/oauth/authorize?'
+        f'client_id={GITHUB_CLIENT_ID}&'
+        f'redirect_uri={GITHUB_REDIRECT_URI}&'
+        'scope=user:email'
+    )
+    return redirect(github_auth_url)
+
+@app.route('/login/github/callback')
+def github_callback():
+    code = request.args.get('code')
+    token_url = 'https://github.com/login/oauth/access_token'
+    token_data = {
+        'client_id': GITHUB_CLIENT_ID,
+        'client_secret': GITHUB_CLIENT_SECRET,
+        'code': code,
+        'redirect_uri': GITHUB_REDIRECT_URI
+    }
+    token_headers = {'Accept': 'application/json'}
+    token_response = requests.post(token_url, data=token_data, headers=token_headers)
+    token_json = token_response.json()
+    access_token = token_json.get('access_token')
+
+    user_info_url = 'https://api.github.com/user'
+    user_info_response = requests.get(user_info_url, headers={'Authorization': f'token {access_token}'})
+    user_info = user_info_response.json()
+    email = user_info.get('email')
+
+    if email is None:
+        # 이메일이 공개되지 않은 경우 추가 요청
+        emails_url = 'https://api.github.com/user/emails'
+        emails_response = requests.get(emails_url, headers={'Authorization': f'token {access_token}'})
+        emails = emails_response.json()
+        for e in emails:
+            if e.get('primary') and e.get('verified'):
+                email = e.get('email')
+                break
+
+    return f'GitHub 로그인 성공: {email}'
+
+# 카카오 API 로그인 라우트
 @app.route('/login/kakao')
 def login_kakao():
     kakao_auth_url = (
@@ -84,6 +135,8 @@ def kakao_callback():
     email = user_info.get('kakao_account', {}).get('email')
     return f'Kakao 로그인 성공: {email}'
 
+
+# 네이버 API 로그인 라우트
 @app.route('/login/naver')
 def login_naver():
     state = 'RANDOM_STATE_STRING'
