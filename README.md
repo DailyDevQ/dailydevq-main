@@ -75,15 +75,6 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 flask run
 ```
 
----
-
-## 사용 방법
-
-1. 소셜 로그인(Google, GitHub, Kakao, Naver)을 통해 계정을 생성합니다.
-2. 로그인 후 대시보드에서 개인화된 면접 질문을 확인합니다.
-3. 매일 제공되는 질문 이메일을 통해 면접 준비를 진행하세요.
-
----
 
 ## 디렉토리 구조 (지속적인 업데이트 예정.)
 
@@ -133,7 +124,7 @@ dailydevq-main/
 
 ---
 
-### 주요 업데이트 내용:
+### 주요 업데이트 내용
 1. **`auth/` 디렉토리**:
    - 인증 관련 HTML 파일은 `/templates/auth/` 디렉토리에 저장.
    - 세부 인증 페이지(예: 대시보드 등)는 `/templates/auth/dashboard/`에서 관리.
@@ -202,7 +193,7 @@ with open('requirements/test.txt', 'w') as f:
 print("requirements 디렉토리와 관련 파일이 생성되었습니다.")
 ```
 
-##### 사용 방법:
+#### 사용 방법
 1. 해당 파일을 프로젝트 루트 디렉토리에 위치시킵니다.
 2. 아래 명령어를 실행합니다:
    ```bash
