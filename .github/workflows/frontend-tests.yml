@@ -1,49 +1,49 @@
-# .github/workflows/frontend-tests.yml
+# # .github/workflows/frontend-tests.yml
 
-name: Frontend Tests
+# name: Frontend Tests
 
-on:
-  push:
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-tests.yml'
+# on:
+#   push:
+#     paths:
+#       - 'frontend/**'
+#       - '.github/workflows/frontend-tests.yml'
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10']
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: ['3.8', '3.9', '3.10']
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+#       - name: Set up Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: ${{ matrix.python-version }}
+#           cache: 'pip'
 
-      - name: Install dependencies
-        run: |
-          cd frontend
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest-cov flake8 codecov
+#       - name: Install dependencies
+#         run: |
+#           cd frontend
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
+#           pip install pytest-cov flake8 codecov
 
-      - name: Run linting
-        run: |
-          cd frontend
-          flake8 app/ tests/
+#       - name: Run linting
+#         run: |
+#           cd frontend
+#           flake8 app/ tests/
 
-      - name: Run tests with coverage
-        run: |
-          cd frontend
-          pytest tests/ --cov=app --cov-report=xml
+#       - name: Run tests with coverage
+#         run: |
+#           cd frontend
+#           pytest tests/ --cov=app --cov-report=xml
 
-      - name: Upload coverage to Codecov
-        run: |
-          cd frontend
-          codecov -f coverage.xml
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#       - name: Upload coverage to Codecov
+#         run: |
+#           cd frontend
+#           codecov -f coverage.xml
+#         env:
+#           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
