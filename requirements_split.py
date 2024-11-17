@@ -12,6 +12,7 @@ MarkupSafe==3.0.2
 Werkzeug==3.1.3
 python-dotenv==1.0.1
 typing_extensions==4.12.2
+requests==2.32.3
 """
 
 # 개발용 패키지 (코드 포맷팅, 린팅 도구)
