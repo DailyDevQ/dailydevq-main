@@ -1,0 +1,10 @@
+<!-- frontend/app/templates/500.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center">
+    <h1>500 - Internal Server Error</h1>
+    <p>서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">홈으로 돌아가기</a>
+</div>
+{% endblock %}
