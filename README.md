@@ -102,13 +102,10 @@ dailydevq-main/
 │   │   ├── handler.py          # Lambda 핸들러
 │   │   └── user_service.py     # 사용자 정보 관리 함수
 ├── infrastructure/
-│   ├── .terraform/             # Terraform 관련 파일 (자동 생성)
 │   ├── dynamodb.tf             # DynamoDB 설정
 │   ├── outputs.tf              # Terraform 출력
 │   ├── providers.tf            # AWS 프로바이더 설정
-│   ├── terraform.lock.hcl      # Terraform 잠금 파일
-│   ├── terraform.tfstate       # Terraform 상태 파일
-│   ├── terraform.tfvars        # Terraform 변수 값
+│   ├── terraform.tfvars        # Terraform 변수 값 (Git에 업로드 금지) 따로 생성 후 사용.
 │   └── variables.tf            # Terraform 변수 정의
 ├── requirements/
 │   ├── base.txt                # 기본 패키지 목록
@@ -119,7 +116,7 @@ dailydevq-main/
 ├── LICENSE                     # 라이선스 파일
 ├── MAIN-LOGO.jpg               # 서비스 로고 이미지
 ├── README.md                   # 프로젝트 설명 파일
-└── .env                        # 환경 변수 파일 (Git에 업로드 금지)
+└── .env                        # 환경 변수 파일 (Git에 업로드 금지) 따로 생성 후 사용.
 ```
 
 ---
