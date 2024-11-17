@@ -1,9 +1,10 @@
-# frontend/app/app.py
+# ./frontend/app/app.py
 
 from flask import Flask, render_template, redirect, request, url_for
 import os
 from dotenv import load_dotenv
 import requests
+from backend.functions.user_service import save_user
 
 # .env 파일 로드
 load_dotenv()
@@ -20,11 +21,12 @@ KAKAO_CLIENT_ID = os.getenv('KAKAO_CLIENT_ID')
 NAVER_CLIENT_ID = os.getenv('NAVER_CLIENT_ID')
 NAVER_CLIENT_SECRET = os.getenv('NAVER_CLIENT_SECRET')
 
-# 리디렉션 URI 설정
-GOOGLE_REDIRECT_URI = 'http://localhost:5000/login/google/callback'
-GITHUB_REDIRECT_URI = 'http://localhost:5000/login/github/callback'
-KAKAO_REDIRECT_URI = 'http://localhost:5000/login/kakao/callback'
-NAVER_REDIRECT_URI = 'http://localhost:5000/login/naver/callback'
+# 환경 변수에서 리디렉션 URI 가져오기
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
+KAKAO_REDIRECT_URI = os.getenv('KAKAO_REDIRECT_URI')
+NAVER_REDIRECT_URI = os.getenv('NAVER_REDIRECT_URI')
+
 
 # 구글 API 로그인 라우트
 @app.route('/')
@@ -60,7 +62,9 @@ def google_callback():
     user_info_response = requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
     user_info = user_info_response.json()
     email = user_info.get('email')
-    return f'Google 로그인 성공: {email}'
+    # 사용자 데이터 저장
+    save_user(email, user_info.get('name'), user_info.get('picture'), "Google")
+    return f"Google 로그인 성공: {email}"
 
 # 깃허브 API 로그인 라우트
 @app.route('/login/github')
@@ -103,7 +107,9 @@ def github_callback():
                 email = e.get('email')
                 break
 
-    return f'GitHub 로그인 성공: {email}'
+    # 사용자 데이터 저장
+    save_user(email, user_info.get('name'), user_info.get('avatar_url'), "GitHub")
+    return f"GitHub 로그인 성공: {email}"
 
 # 카카오 API 로그인 라우트
 @app.route('/login/kakao')
@@ -129,10 +135,17 @@ def kakao_callback():
     token_response = requests.post(token_url, data=token_data)
     token_json = token_response.json()
     access_token = token_json.get('access_token')
+
     user_info_url = 'https://kapi.kakao.com/v2/user/me'
     user_info_response = requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
     user_info = user_info_response.json()
+
     email = user_info.get('kakao_account', {}).get('email')
+    name = user_info.get('properties', {}).get('nickname')
+    profile_url = user_info.get('properties', {}).get('profile_image')
+
+    # 사용자 정보 저장
+    save_user(email, name, profile_url, "Kakao")
     return f'Kakao 로그인 성공: {email}'
 
 
@@ -164,11 +177,19 @@ def naver_callback():
     token_response = requests.post(token_url, data=token_data)
     token_json = token_response.json()
     access_token = token_json.get('access_token')
+
     user_info_url = 'https://openapi.naver.com/v1/nid/me'
     user_info_response = requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
     user_info = user_info_response.json()
+
     email = user_info.get('response', {}).get('email')
+    name = user_info.get('response', {}).get('name')
+    profile_url = user_info.get('response', {}).get('profile_image')
+
+    # 사용자 정보 저장
+    save_user(email, name, profile_url, "Naver")
     return f'Naver 로그인 성공: {email}'
+
 
 if __name__ == '__main__':
     app.run(debug=True)
