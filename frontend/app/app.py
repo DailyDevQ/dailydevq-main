@@ -9,26 +9,49 @@ from backend.functions.user_service import save_user
 # .env 파일 로드
 load_dotenv()
 
+# Flask 앱 초기화
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))  # 고정된 SECRET_KEY 설정
 
-# 환경 변수에서 클라이언트 ID와 시크릿 키 가져오기
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
-GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
-KAKAO_CLIENT_ID = os.getenv('KAKAO_CLIENT_ID')
-NAVER_CLIENT_ID = os.getenv('NAVER_CLIENT_ID')
-NAVER_CLIENT_SECRET = os.getenv('NAVER_CLIENT_SECRET')
+# 환경 변수 가져오기 함수
+def get_env_var(name):
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"환경 변수 {name}이(가) 설정되지 않았습니다.")
+    return value
 
-# 환경 변수에서 리디렉션 URI 가져오기
-GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
-GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
-KAKAO_REDIRECT_URI = os.getenv('KAKAO_REDIRECT_URI')
-NAVER_REDIRECT_URI = os.getenv('NAVER_REDIRECT_URI')
+# OAuth 클라이언트 설정
+GOOGLE_CLIENT_ID = get_env_var('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = get_env_var('GOOGLE_CLIENT_SECRET')
+GITHUB_CLIENT_ID = get_env_var('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = get_env_var('GITHUB_CLIENT_SECRET')
+KAKAO_CLIENT_ID = get_env_var('KAKAO_CLIENT_ID')
+NAVER_CLIENT_ID = get_env_var('NAVER_CLIENT_ID')
+NAVER_CLIENT_SECRET = get_env_var('NAVER_CLIENT_SECRET')
 
+# 리다이렉트 URI 설정
+GOOGLE_REDIRECT_URI = get_env_var('GOOGLE_REDIRECT_URI')
+GITHUB_REDIRECT_URI = get_env_var('GITHUB_REDIRECT_URI')
+KAKAO_REDIRECT_URI = get_env_var('KAKAO_REDIRECT_URI')
+NAVER_REDIRECT_URI = get_env_var('NAVER_REDIRECT_URI')
 
-# 구글 API 로그인 라우트
+# 공통 함수: 사용자 정보 저장
+def save_user_info(email, name, profile_url, provider):
+    if not email:
+        raise RuntimeError(f"{provider}에서 이메일을 가져올 수 없습니다.")
+    save_user(email, name, profile_url, provider)
+
+# 공통 함수: 사용자 정보 요청
+def fetch_user_info(token_url, token_data, user_info_url, headers=None):
+    token_response = requests.post(token_url, data=token_data)
+    token_response.raise_for_status()
+    access_token = token_response.json().get('access_token')
+
+    user_info_response = requests.get(user_info_url, headers={**(headers or {}), 'Authorization': f'Bearer {access_token}'})
+    user_info_response.raise_for_status()
+    return user_info_response.json()
+
+# 라우트 정의
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -47,7 +70,6 @@ def login_google():
 @app.route('/login/google/callback')
 def google_callback():
     code = request.args.get('code')
-    token_url = 'https://oauth2.googleapis.com/token'
     token_data = {
         'code': code,
         'client_id': GOOGLE_CLIENT_ID,
@@ -55,18 +77,14 @@ def google_callback():
         'redirect_uri': GOOGLE_REDIRECT_URI,
         'grant_type': 'authorization_code'
     }
-    token_response = requests.post(token_url, data=token_data)
-    token_json = token_response.json()
-    access_token = token_json.get('access_token')
-    user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
-    user_info_response = requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
-    user_info = user_info_response.json()
-    email = user_info.get('email')
-    # 사용자 데이터 저장
-    save_user(email, user_info.get('name'), user_info.get('picture'), "Google")
-    return f"Google 로그인 성공: {email}"
+    user_info = fetch_user_info(
+        token_url='https://oauth2.googleapis.com/token',
+        token_data=token_data,
+        user_info_url='https://www.googleapis.com/oauth2/v2/userinfo'
+    )
+    save_user_info(user_info.get('email'), user_info.get('name'), user_info.get('picture'), "Google")
+    return f"Google 로그인 성공: {user_info.get('email')}"
 
-# 깃허브 API 로그인 라우트
 @app.route('/login/github')
 def login_github():
     github_auth_url = (
@@ -80,38 +98,21 @@ def login_github():
 @app.route('/login/github/callback')
 def github_callback():
     code = request.args.get('code')
-    token_url = 'https://github.com/login/oauth/access_token'
     token_data = {
         'client_id': GITHUB_CLIENT_ID,
         'client_secret': GITHUB_CLIENT_SECRET,
         'code': code,
         'redirect_uri': GITHUB_REDIRECT_URI
     }
-    token_headers = {'Accept': 'application/json'}
-    token_response = requests.post(token_url, data=token_data, headers=token_headers)
-    token_json = token_response.json()
-    access_token = token_json.get('access_token')
+    user_info = fetch_user_info(
+        token_url='https://github.com/login/oauth/access_token',
+        token_data=token_data,
+        user_info_url='https://api.github.com/user',
+        headers={'Accept': 'application/json'}
+    )
+    save_user_info(user_info.get('email'), user_info.get('name'), user_info.get('avatar_url'), "GitHub")
+    return f"GitHub 로그인 성공: {user_info.get('email')}"
 
-    user_info_url = 'https://api.github.com/user'
-    user_info_response = requests.get(user_info_url, headers={'Authorization': f'token {access_token}'})
-    user_info = user_info_response.json()
-    email = user_info.get('email')
-
-    if email is None:
-        # 이메일이 공개되지 않은 경우 추가 요청
-        emails_url = 'https://api.github.com/user/emails'
-        emails_response = requests.get(emails_url, headers={'Authorization': f'token {access_token}'})
-        emails = emails_response.json()
-        for e in emails:
-            if e.get('primary') and e.get('verified'):
-                email = e.get('email')
-                break
-
-    # 사용자 데이터 저장
-    save_user(email, user_info.get('name'), user_info.get('avatar_url'), "GitHub")
-    return f"GitHub 로그인 성공: {email}"
-
-# 카카오 API 로그인 라우트
 @app.route('/login/kakao')
 def login_kakao():
     kakao_auth_url = (
@@ -125,31 +126,26 @@ def login_kakao():
 @app.route('/login/kakao/callback')
 def kakao_callback():
     code = request.args.get('code')
-    token_url = 'https://kauth.kakao.com/oauth/token'
     token_data = {
         'grant_type': 'authorization_code',
         'client_id': KAKAO_CLIENT_ID,
         'redirect_uri': KAKAO_REDIRECT_URI,
         'code': code
     }
-    token_response = requests.post(token_url, data=token_data)
-    token_json = token_response.json()
-    access_token = token_json.get('access_token')
+    user_info = fetch_user_info(
+        token_url='https://kauth.kakao.com/oauth/token',
+        token_data=token_data,
+        user_info_url='https://kapi.kakao.com/v2/user/me'
+    )
+    kakao_account = user_info.get('kakao_account', {})
+    save_user_info(
+        email=kakao_account.get('email'),
+        name=user_info.get('properties', {}).get('nickname'),
+        profile_url=user_info.get('properties', {}).get('profile_image'),
+        provider="Kakao"
+    )
+    return f'Kakao 로그인 성공: {kakao_account.get("email")}'
 
-    user_info_url = 'https://kapi.kakao.com/v2/user/me'
-    user_info_response = requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
-    user_info = user_info_response.json()
-
-    email = user_info.get('kakao_account', {}).get('email')
-    name = user_info.get('properties', {}).get('nickname')
-    profile_url = user_info.get('properties', {}).get('profile_image')
-
-    # 사용자 정보 저장
-    save_user(email, name, profile_url, "Kakao")
-    return f'Kakao 로그인 성공: {email}'
-
-
-# 네이버 API 로그인 라우트
 @app.route('/login/naver')
 def login_naver():
     state = 'RANDOM_STATE_STRING'
@@ -166,7 +162,6 @@ def login_naver():
 def naver_callback():
     code = request.args.get('code')
     state = request.args.get('state')
-    token_url = 'https://nid.naver.com/oauth2.0/token'
     token_data = {
         'grant_type': 'authorization_code',
         'client_id': NAVER_CLIENT_ID,
@@ -174,22 +169,19 @@ def naver_callback():
         'code': code,
         'state': state
     }
-    token_response = requests.post(token_url, data=token_data)
-    token_json = token_response.json()
-    access_token = token_json.get('access_token')
-
-    user_info_url = 'https://openapi.naver.com/v1/nid/me'
-    user_info_response = requests.get(user_info_url, headers={'Authorization': f'Bearer {access_token}'})
-    user_info = user_info_response.json()
-
-    email = user_info.get('response', {}).get('email')
-    name = user_info.get('response', {}).get('name')
-    profile_url = user_info.get('response', {}).get('profile_image')
-
-    # 사용자 정보 저장
-    save_user(email, name, profile_url, "Naver")
-    return f'Naver 로그인 성공: {email}'
-
+    user_info = fetch_user_info(
+        token_url='https://nid.naver.com/oauth2.0/token',
+        token_data=token_data,
+        user_info_url='https://openapi.naver.com/v1/nid/me'
+    )
+    response = user_info.get('response', {})
+    save_user_info(
+        email=response.get('email'),
+        name=response.get('name'),
+        profile_url=response.get('profile_image'),
+        provider="Naver"
+    )
+    return f'Naver 로그인 성공: {response.get("email")}'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true')
