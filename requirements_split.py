@@ -19,6 +19,7 @@ python-dateutil==2.9.0.post0
 six==1.16.0
 s3transfer==0.10.3
 flask-bootstrap==3.3.7
+flask_login==0.6.3
 """
 
 # 개발용 패키지 (코드 포맷팅, 린팅 도구)
