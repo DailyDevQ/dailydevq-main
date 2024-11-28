@@ -1,16 +1,18 @@
-# frontend/app/routes.py
+# ./frontend/app/routes.py
 
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, url_for, render_template
+from flask_login import logout_user
+from flask_login import login_required, current_user
 
-# 메인 블루프린트 생성
-main = Blueprint('main', __name__)
+# Blueprint 생성
+bp = Blueprint('main', __name__)
 
-# 메인 페이지 라우트
-@main.route('/')
-def index():
-    return render_template('index.html')
+@bp.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
-# About 페이지 라우트
-@main.route('/about')
-def about():
-    return render_template('about.html')
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user)
