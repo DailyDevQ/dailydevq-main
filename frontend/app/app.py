@@ -6,41 +6,49 @@ from dotenv import load_dotenv
 import os
 import requests
 from backend.functions.user_service import save_user, get_user_from_db  # 수정됨
+# from frontend.app.routes import bp as auth_bp
 from frontend.app.routes import bp as main_bp
-
 
 # .env 파일 로드
 load_dotenv()
 
 # Flask 앱 초기화
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
+app.secret_key = os.getenv('SECRET_KEY')  # 고정된 SECRET_KEY 사용
+
+# 세션 쿠키 설정 강화
+app.config['SESSION_COOKIE_SECURE'] = False  # HTTPS 환경에서는 True로 설정
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # 자바스크립트로 쿠키 접근 방지
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # 교차 사이트 요청 제한
+
 
 # LoginManager 초기화
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login_google'  # 수정됨: 보호된 페이지 접근 시 리다이렉트 경로 설정
+login_manager.login_view = None  # 기본 login_view 비활성화
 
 # 사용자 클래스 정의
-class User(UserMixin):  # 수정됨: Flask-Login 사용자 모델 정의
+class User(UserMixin):  # Flask-Login 사용자 모델 정의
     def __init__(self, id, name, email):
         self.id = id
         self.name = name
         self.email = email
 
 # 사용자 로드 함수
-@login_manager.user_loader  # 수정됨: Flask-Login 사용자 로드 함수
-def load_user(user_id):
-    """
-    사용자 ID를 기반으로 DynamoDB에서 사용자 정보를 로드합니다.
-    """
-    user_data = get_user_from_db(user_id)  # DynamoDB에서 사용자 정보 검색
+@login_manager.user_loader
+def load_user(email):
+    user_data = get_user_from_db(email)  # email을 기준으로 검색
     if user_data:
-        return User(user_data['id'], user_data['name'], user_data['email'])
+        return User(
+            id=user_data['email'],  # 사용자 ID로 email 사용
+            name=user_data.get('name'),
+            email=user_data['email']
+        )
     return None
 
+
 # Blueprint 등록
-app.register_blueprint(main_bp, url_prefix='/')  # 수정됨: 'main' Blueprint 등록
+app.register_blueprint(main_bp, url_prefix='/')
 
 # 환경 변수 가져오기 함수
 def get_env_var(name):
@@ -50,16 +58,24 @@ def get_env_var(name):
     return value
 
 # DynamoDB 사용자 검색 함수
-def get_user_from_db(user_id):  # 수정됨: DynamoDB에서 사용자 정보를 가져오는 함수 추가
+def get_user_from_db(email):
     import boto3
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('users')  # DynamoDB 테이블 이름
+    table = dynamodb.Table('Users')  # 테이블 이름 확인
     try:
-        response = table.get_item(Key={'id': user_id})
-        return response.get('Item')
+        # email을 기준으로 검색
+        response = table.scan(
+            FilterExpression="email = :email",
+            ExpressionAttributeValues={":email": email}
+        )
+        items = response.get('Items')
+        if items:
+            return items[0]  # 첫 번째 매칭된 데이터 반환
+        return None
     except Exception as e:
         print(f"DynamoDB 오류: {e}")
         return None
+
 
 # OAuth 클라이언트 설정
 GOOGLE_CLIENT_ID = get_env_var('GOOGLE_CLIENT_ID')
@@ -77,7 +93,7 @@ KAKAO_REDIRECT_URI = get_env_var('KAKAO_REDIRECT_URI')
 NAVER_REDIRECT_URI = get_env_var('NAVER_REDIRECT_URI')
 
 # 공통 함수: 사용자 정보 저장
-def save_user_info(email, name, profile_url, provider):  # 수정됨: 중복 확인 및 로그인 추가
+def save_user_info(email, name, profile_url, provider):  # 중복 확인 및 로그인 추가
     if not email:
         raise RuntimeError(f"{provider}에서 이메일을 가져올 수 없습니다.")
 
@@ -112,7 +128,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/dashboard')
-@login_required  # 수정됨: 로그인 보호 적용
+@login_required  # 로그인 보호 적용
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
@@ -158,42 +174,105 @@ def google_callback():
     save_user_info(email, user_info.get('name'), user_info.get('picture'), "Google")
     return redirect(url_for('main.dashboard'))
 
-# GitHub 로그인 API
+# GitHub 로그인 API Version 1
+# @app.route('/login/github')
+# def login_github():
+#     github_auth_url = (
+#         'https://github.com/login/oauth/authorize?'
+#         f'client_id={GITHUB_CLIENT_ID}&'
+#         f'redirect_uri={GITHUB_REDIRECT_URI}&'
+#         'scope=user:email'
+#     )
+#     return redirect(github_auth_url)
+
+# @app.route('/login/github/callback')
+# def github_callback():
+#     code = request.args.get('code')
+#     token_data = {
+#         'client_id': GITHUB_CLIENT_ID,
+#         'client_secret': GITHUB_CLIENT_SECRET,
+#         'code': code,
+#         'redirect_uri': GITHUB_REDIRECT_URI
+#     }
+
+#     try:
+#         # GitHub 토큰 요청 시 Accept 헤더 추가
+#         user_info = fetch_user_info(
+#             token_url='https://github.com/login/oauth/access_token',
+#             token_data=token_data,
+#             user_info_url='https://api.github.com/user',
+#             headers={'Accept': 'application/json'}  # 중요: JSON 응답 요청
+#         )
+#     except RuntimeError as e:
+#         return str(e), 500
+
+#     email = user_info.get('email')
+#     if not email:
+#         return "GitHub 인증 실패: 이메일 정보가 없습니다.", 400
+
+#     save_user_info(email, user_info.get('name'), user_info.get('avatar_url'), "GitHub")
+#     return redirect(url_for('main.dashboard'))
+
+
 @app.route('/login/github')
 def login_github():
-    github_auth_url = (
-        'https://github.com/login/oauth/authorize?'
-        f'client_id={GITHUB_CLIENT_ID}&'
-        f'redirect_uri={GITHUB_REDIRECT_URI}&'
-        'scope=user:email'
-    )
+    from urllib.parse import urlencode
+    query_params = urlencode({
+        'client_id': GITHUB_CLIENT_ID,
+        'redirect_uri': GITHUB_REDIRECT_URI,
+        'scope': 'user:email'
+    })
+    github_auth_url = f'https://github.com/login/oauth/authorize?{query_params}'
     return redirect(github_auth_url)
 
 @app.route('/login/github/callback')
 def github_callback():
     code = request.args.get('code')
+    token_url = 'https://github.com/login/oauth/access_token'
     token_data = {
         'client_id': GITHUB_CLIENT_ID,
         'client_secret': GITHUB_CLIENT_SECRET,
         'code': code,
         'redirect_uri': GITHUB_REDIRECT_URI
     }
+    token_headers = {'Accept': 'application/json'}
 
     try:
-        user_info = fetch_user_info(
-            token_url='https://github.com/login/oauth/access_token',
-            token_data=token_data,
-            user_info_url='https://api.github.com/user',
-            headers={'Accept': 'application/json'}
-        )
-    except RuntimeError as e:
-        return str(e), 500
+        token_response = requests.post(token_url, data=token_data, headers=token_headers)
+        token_response.raise_for_status()
+        token_json = token_response.json()
+    except (requests.exceptions.RequestException, ValueError) as e:
+        return f"GitHub 인증 실패: {e}", 500
+
+    access_token = token_json.get('access_token')
+    if not access_token:
+        return f"GitHub 인증 실패: {token_json}", 500
+
+    user_info_url = 'https://api.github.com/user'
+    try:
+        user_info_response = requests.get(user_info_url, headers={'Authorization': f'token {access_token}'})
+        user_info_response.raise_for_status()
+        user_info = user_info_response.json()
+    except (requests.exceptions.RequestException, ValueError) as e:
+        return f"GitHub 사용자 정보 요청 실패: {e}", 500
 
     email = user_info.get('email')
     if not email:
-        return "GitHub 인증 실패: 이메일 정보가 없습니다.", 400
+        emails_url = 'https://api.github.com/user/emails'
+        try:
+            emails_response = requests.get(emails_url, headers={'Authorization': f'token {access_token}'})
+            emails_response.raise_for_status()
+            emails = emails_response.json()
+            for e in emails:
+                if e.get('primary') and e.get('verified'):
+                    email = e.get('email')
+                    break
+        except (requests.exceptions.RequestException, ValueError) as e:
+            return f"GitHub 이메일 요청 실패: {e}", 500
 
-    save_user_info(email, user_info.get('name'), user_info.get('avatar_url'), "GitHub")
+    if not email:
+        return "GitHub 인증 실패: 이메일을 가져올 수 없습니다.", 400
+
     return redirect(url_for('main.dashboard'))
 
 # Kakao 로그인 API
@@ -237,6 +316,12 @@ def kakao_callback():
         profile_url=user_info.get('properties', {}).get('profile_image'),
         provider="Kakao"
     )
+
+    # 사용자 세션에 로그인 추가
+    user = User(id=email, name=user_info.get('properties', {}).get('nickname'), email=email)
+    login_user(user) # Flask-Login 세션에 사용자 추가
+
+    print(f"로그인된 사용자: {user.id}, {user.name}, {user.email}")  # 디버깅용 출력
     return redirect(url_for('main.dashboard'))
 
 # Naver 로그인 API
@@ -287,4 +372,5 @@ def naver_callback():
     return redirect(url_for('main.dashboard'))
 
 if __name__ == '__main__':
+    print(app.url_map)
     app.run(debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true')
