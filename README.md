@@ -1,4 +1,7 @@
-# DailyDevQ-Main-Repo
+# **DailyDevQ-Main-Repo**
+
+[![EN](https://img.shields.io/badge/lang-en-blue.svg)](/README/README-en.md) 
+[![KR](https://img.shields.io/badge/lang-kr-red.svg)](/README.md)
 
 DailyDevQ는 개발자를 위한 AI 기반의 기술 면접 질문 및 학습 관리 플랫폼입니다. AWS 서버리스 아키텍처와 다양한 소셜 로그인 기능을 활용하여 사용자 친화적이고 효율적인 학습 환경을 제공합니다.
 
