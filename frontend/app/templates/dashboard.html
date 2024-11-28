@@ -1,0 +1,31 @@
+<!-- frontend/app/templates/dashboard.html -->
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>대시보드1</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>환영합니다, {{ user.name }}님!</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.dashboard') }}">대시보드</a></li>
+                <li><a href="{{ url_for('main.logout') }}">로그아웃</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>오늘의 질문</h2>
+            <p>여기에 AI가 생성한 질문이 표시됩니다.</p>
+        </section>
+        <section>
+            <h2>최근 활동</h2>
+            <p>여기에 사용자의 최근 활동이 표시됩니다.</p>
+        </section>
+    </main>
+</body>
+</html>
