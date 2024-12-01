@@ -187,12 +187,14 @@ def login_github():
     github_auth_url = f'https://github.com/login/oauth/authorize?{query_params}'
     return redirect(github_auth_url)
 
+
 @app.route('/login/github/callback')
 def github_callback():
     code = request.args.get('code')
     if not code:
         return "GitHub 인증 실패: code가 없습니다.", 400
 
+    # GitHub Access Token 요청
     token_url = 'https://github.com/login/oauth/access_token'
     token_data = {
         'client_id': GITHUB_CLIENT_ID,
@@ -215,6 +217,7 @@ def github_callback():
     if not access_token:
         return f"GitHub 인증 실패: {token_json}", 500
 
+    # GitHub 사용자 정보 요청
     user_info_url = 'https://api.github.com/user'
     try:
         user_info_response = requests.get(user_info_url, headers={'Authorization': f'token {access_token}'})
@@ -225,6 +228,7 @@ def github_callback():
     except requests.RequestException as e:
         return f"GitHub 사용자 정보 요청 실패: {e}", 500
 
+    # 이메일 정보 가져오기
     email = user_info.get('email')
     if not email:
         emails_url = 'https://api.github.com/user/emails'
@@ -244,14 +248,27 @@ def github_callback():
     if not email:
         return "GitHub 인증 실패: 이메일을 가져올 수 없습니다.", 400
 
-    save_user_info(email, user_info.get('name', 'Unknown'), user_info.get('avatar_url', ''), "GitHub")
+    # 사용자 정보 저장 및 디버깅
+    print(f"저장할 사용자 정보: email={email}, name={user_info.get('name', 'Unknown')}, profile_url={user_info.get('avatar_url', '')}, provider=GitHub")
+    try:
+        save_user_info(
+            email=email,
+            name=user_info.get('name', 'Unknown'),  # 이름이 없으면 기본값
+            profile_url=user_info.get('avatar_url', ''),  # 프로필 URL 없으면 빈 값
+            provider="GitHub"
+        )
+        print("사용자 정보가 DynamoDB에 성공적으로 저장되었습니다.")
+    except Exception as e:
+        print(f"사용자 정보를 DynamoDB에 저장하는 중 오류 발생: {e}")
+        return "GitHub 인증 실패: 사용자 정보 저장 중 오류 발생", 500
 
-    # 사용자 객체 생성
-    user = User(id=email, name=user_info.get('name'), email=email)
-    # Flask-Login 세션에 사용자 추가
-    login_user(user)
-    
+    # 사용자 객체 생성 및 로그인
+    user = User(id=email, name=user_info.get('name', 'Unknown'), email=email)
+    login_user(user)  # Flask-Login 세션에 사용자 추가
+
+    # 대시보드로 리다이렉트
     return redirect(url_for('main.dashboard'))
+
 
 # Kakao 로그인 API
 @app.route('/login/kakao')
