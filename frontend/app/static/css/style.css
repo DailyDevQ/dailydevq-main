@@ -29,11 +29,6 @@ nav li {
 nav a {
   color: #fff;
   text-decoration: none;
-}
-
-main {
-  padding: 20px;
-}
 
 section {
   background-color: #fff;
@@ -41,4 +36,4 @@ section {
   padding: 15px;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
+

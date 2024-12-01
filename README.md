@@ -1,4 +1,16 @@
-# DailyDevQ-Main-Repo
+# **DailyDevQ-Main-Repo**
+
+[![EN](https://img.shields.io/badge/lang-en-blue.svg)](/README/README-en.md) 
+[![KR](https://img.shields.io/badge/lang-kr-red.svg)](/README.md)
+
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4.svg?logo=terraform)
+![AWS](https://img.shields.io/badge/Cloud-AWS-FF9900.svg?logo=amazon-aws)
+![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg?logo=github-actions)
+![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991.svg?logo=openai)
+![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+<!-- ![Build Status](https://github.com/DailyDevQ/dailydevq-main/actions/workflows/main.yml/badge.svg) -->
 
 DailyDevQ는 개발자를 위한 AI 기반의 기술 면접 질문 및 학습 관리 플랫폼입니다. AWS 서버리스 아키텍처와 다양한 소셜 로그인 기능을 활용하여 사용자 친화적이고 효율적인 학습 환경을 제공합니다.
 

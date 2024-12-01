@@ -120,4 +120,3 @@ def delete_user(user_id):
         print(f"사용자 ID {user_id} 정보가 삭제되었습니다.")
     except ClientError as e:
         print(f"사용자 정보를 삭제하는 중 오류가 발생했습니다: {e}")
-        raise
