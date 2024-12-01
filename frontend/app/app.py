@@ -9,6 +9,7 @@ from backend.functions.user_service import save_user, get_user_from_db  # 수정
 # from frontend.app.routes import bp as auth_bp
 from frontend.app.routes import bp as main_bp
 
+
 # .env 파일 로드
 load_dotenv()
 
