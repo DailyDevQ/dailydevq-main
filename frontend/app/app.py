@@ -9,6 +9,7 @@ from backend.functions.user_service import save_user, get_user_from_db  # 수정
 # from frontend.app.routes import bp as auth_bp
 from frontend.app.routes import bp as main_bp
 
+
 # .env 파일 로드
 load_dotenv()
 
@@ -174,46 +175,7 @@ def google_callback():
     save_user_info(email, user_info.get('name'), user_info.get('picture'), "Google")
     return redirect(url_for('main.dashboard'))
 
-# GitHub 로그인 API Version 1
-# @app.route('/login/github')
-# def login_github():
-#     github_auth_url = (
-#         'https://github.com/login/oauth/authorize?'
-#         f'client_id={GITHUB_CLIENT_ID}&'
-#         f'redirect_uri={GITHUB_REDIRECT_URI}&'
-#         'scope=user:email'
-#     )
-#     return redirect(github_auth_url)
-
-# @app.route('/login/github/callback')
-# def github_callback():
-#     code = request.args.get('code')
-#     token_data = {
-#         'client_id': GITHUB_CLIENT_ID,
-#         'client_secret': GITHUB_CLIENT_SECRET,
-#         'code': code,
-#         'redirect_uri': GITHUB_REDIRECT_URI
-#     }
-
-#     try:
-#         # GitHub 토큰 요청 시 Accept 헤더 추가
-#         user_info = fetch_user_info(
-#             token_url='https://github.com/login/oauth/access_token',
-#             token_data=token_data,
-#             user_info_url='https://api.github.com/user',
-#             headers={'Accept': 'application/json'}  # 중요: JSON 응답 요청
-#         )
-#     except RuntimeError as e:
-#         return str(e), 500
-
-#     email = user_info.get('email')
-#     if not email:
-#         return "GitHub 인증 실패: 이메일 정보가 없습니다.", 400
-
-#     save_user_info(email, user_info.get('name'), user_info.get('avatar_url'), "GitHub")
-#     return redirect(url_for('main.dashboard'))
-
-
+# 깃허브 로그인 API
 @app.route('/login/github')
 def login_github():
     from urllib.parse import urlencode
@@ -228,6 +190,9 @@ def login_github():
 @app.route('/login/github/callback')
 def github_callback():
     code = request.args.get('code')
+    if not code:
+        return "GitHub 인증 실패: code가 없습니다.", 400
+
     token_url = 'https://github.com/login/oauth/access_token'
     token_data = {
         'client_id': GITHUB_CLIENT_ID,
@@ -237,13 +202,13 @@ def github_callback():
     }
     token_headers = {'Accept': 'application/json'}
 
-
-
     try:
         token_response = requests.post(token_url, data=token_data, headers=token_headers)
+        print(f"Token Response Status: {token_response.status_code}")
+        print(f"Token Response JSON: {token_response.json()}")
         token_response.raise_for_status()
         token_json = token_response.json()
-    except (requests.exceptions.RequestException, ValueError) as e:
+    except requests.RequestException as e:
         return f"GitHub 인증 실패: {e}", 500
 
     access_token = token_json.get('access_token')
@@ -253,9 +218,11 @@ def github_callback():
     user_info_url = 'https://api.github.com/user'
     try:
         user_info_response = requests.get(user_info_url, headers={'Authorization': f'token {access_token}'})
+        print(f"User Info Response Status: {user_info_response.status_code}")
+        print(f"User Info Response JSON: {user_info_response.json()}")
         user_info_response.raise_for_status()
         user_info = user_info_response.json()
-    except (requests.exceptions.RequestException, ValueError) as e:
+    except requests.RequestException as e:
         return f"GitHub 사용자 정보 요청 실패: {e}", 500
 
     email = user_info.get('email')
@@ -263,18 +230,27 @@ def github_callback():
         emails_url = 'https://api.github.com/user/emails'
         try:
             emails_response = requests.get(emails_url, headers={'Authorization': f'token {access_token}'})
+            print(f"Emails Response Status: {emails_response.status_code}")
+            print(f"Emails Response JSON: {emails_response.json()}")
             emails_response.raise_for_status()
             emails = emails_response.json()
             for e in emails:
                 if e.get('primary') and e.get('verified'):
                     email = e.get('email')
                     break
-        except (requests.exceptions.RequestException, ValueError) as e:
+        except requests.RequestException as e:
             return f"GitHub 이메일 요청 실패: {e}", 500
 
     if not email:
         return "GitHub 인증 실패: 이메일을 가져올 수 없습니다.", 400
 
+    save_user_info(email, user_info.get('name', 'Unknown'), user_info.get('avatar_url', ''), "GitHub")
+
+    # 사용자 객체 생성
+    user = User(id=email, name=user_info.get('name'), email=email)
+    # Flask-Login 세션에 사용자 추가
+    login_user(user)
+    
     return redirect(url_for('main.dashboard'))
 
 # Kakao 로그인 API
