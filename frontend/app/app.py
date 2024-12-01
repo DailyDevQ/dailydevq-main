@@ -237,6 +237,8 @@ def github_callback():
     }
     token_headers = {'Accept': 'application/json'}
 
+
+
     try:
         token_response = requests.post(token_url, data=token_data, headers=token_headers)
         token_response.raise_for_status()
