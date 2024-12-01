@@ -174,46 +174,6 @@ def google_callback():
     save_user_info(email, user_info.get('name'), user_info.get('picture'), "Google")
     return redirect(url_for('main.dashboard'))
 
-# GitHub 로그인 API Version 1
-# @app.route('/login/github')
-# def login_github():
-#     github_auth_url = (
-#         'https://github.com/login/oauth/authorize?'
-#         f'client_id={GITHUB_CLIENT_ID}&'
-#         f'redirect_uri={GITHUB_REDIRECT_URI}&'
-#         'scope=user:email'
-#     )
-#     return redirect(github_auth_url)
-
-# @app.route('/login/github/callback')
-# def github_callback():
-#     code = request.args.get('code')
-#     token_data = {
-#         'client_id': GITHUB_CLIENT_ID,
-#         'client_secret': GITHUB_CLIENT_SECRET,
-#         'code': code,
-#         'redirect_uri': GITHUB_REDIRECT_URI
-#     }
-
-#     try:
-#         # GitHub 토큰 요청 시 Accept 헤더 추가
-#         user_info = fetch_user_info(
-#             token_url='https://github.com/login/oauth/access_token',
-#             token_data=token_data,
-#             user_info_url='https://api.github.com/user',
-#             headers={'Accept': 'application/json'}  # 중요: JSON 응답 요청
-#         )
-#     except RuntimeError as e:
-#         return str(e), 500
-
-#     email = user_info.get('email')
-#     if not email:
-#         return "GitHub 인증 실패: 이메일 정보가 없습니다.", 400
-
-#     save_user_info(email, user_info.get('name'), user_info.get('avatar_url'), "GitHub")
-#     return redirect(url_for('main.dashboard'))
-
-
 @app.route('/login/github')
 def login_github():
     from urllib.parse import urlencode
