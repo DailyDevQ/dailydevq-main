@@ -126,7 +126,7 @@ def fetch_user_info(token_url, token_data, user_info_url, headers=None):
 # 라우트 정의
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('login.html')
 
 @app.route('/dashboard')
 @login_required  # 로그인 보호 적용
