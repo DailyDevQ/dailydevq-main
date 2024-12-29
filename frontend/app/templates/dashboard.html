@@ -5,11 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <title>대시보드1</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
     <header>
-        <h1>환영합니다, {{ user.name }}님!</h1>
+        <!-- <h1>환영합니다, {{ user.name }}님!</h1> -->
+        <h1>환영합니다, TEST 님!</h1> <!--유저 네임 테스트용-->
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">대시보드</a></li>
