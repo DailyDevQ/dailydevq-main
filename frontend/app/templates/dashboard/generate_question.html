@@ -1,0 +1,20 @@
+<!-- ./frontend/app/templates/dashboard/generate_question.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>AI 질문 생성</h2>
+    <form method="POST" action="{{ url_for('main.generate_question') }}">
+        <div class="mb-3">
+            <label for="tech_stack" class="form-label">기술 스택</label>
+            <input type="text" name="tech_stack" id="tech_stack" class="form-control" placeholder="예: Cloud, DevOps 등">
+        </div>
+        <button type="submit" class="btn btn-primary">질문 생성</button>
+    </form>
+
+    {% if question %}
+    <hr>
+    <h4>생성된 질문</h4>
+    <p>{{ question }}</p>
+    {% endif %}
+</div>
+{% endblock %}
