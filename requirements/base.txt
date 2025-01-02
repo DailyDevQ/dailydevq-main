@@ -15,3 +15,4 @@ six==1.16.0
 s3transfer==0.10.3
 flask-bootstrap==3.3.7
 flask_login==0.6.3
+openai==1.58.1
