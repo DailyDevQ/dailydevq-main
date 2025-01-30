@@ -1,44 +1,61 @@
 # backup-s3.yml
+#
+# 이 파일은 GitHub Actions 워크플로 설정 파일로, master 브랜치에 커밋이 푸시될 때마다
+# AWS S3 버킷에 프로젝트 압축본을 백업하기 위한 설정입니다.
+# ------------------------------------------------------------------------------
+# ※ 사용 전, 아래 항목들을 본인의 환경에 맞춰 수정하십시오.
+#    1) YOUR_S3_BUCKET_NAME: 백업용으로 사용할 S3 버킷 이름
+#    2) GitHub Secrets 설정(레포지토리 > Settings > Secrets > Actions):
+#       - AWS_ACCESS_KEY_ID
+#       - AWS_SECRET_ACCESS_KEY
+#       - AWS_REGION
+#
+# 본 예시에서는 파일명을 "dailydevq-main-backup-<날짜>-<커밋 SHA 앞 7자리>.zip" 형태로 생성합니다.
+# GitHub Expressions( ${{ github.sha }} ) 는 run: 쉘 스크립트 내부에서 직접 사용하기 어렵기 때문에,
+# GITHUB_SHA 환경 변수를 셸에서 잘라쓰는 방식을 사용합니다.
 
-# 이 파일은 GitHub Actions 워크플로우 설정 파일로, 특정 브랜치(master)에 코드가 푸시될 때마다
-# AWS S3 버킷에 프로젝트 압축본을 백업하는 역할을 합니다.
-# ---------------------------------------------------------------------------
-# ※ 주의: 실제로 적용하기 전, 아래 부분들을 반드시 자신의 환경에 맞게 변경해야 합니다.
-#    - YOUR_S3_BUCKET_NAME: 백업용으로 사용할 S3 버킷 이름
-#    - secrets.AWS_ACCESS_KEY_ID, secrets.AWS_SECRET_ACCESS_KEY, secrets.AWS_REGION: 
-#      GitHub 리포지토리 Settings > Secrets > Actions 에서 설정
-name: Backup to S3  # 워크플로우의 이름
+name: Backup to S3  # 워크플로 이름
 
 on:
   push:
     branches:
-      - "master"  # master 브랜치에 코드가 푸시될 때마다 이 워크플로우가 트리거됩니다.
+      - "master"  # master 브랜치에 코드가 푸시될 때마다 트리거
 
 jobs:
   backup_s3_job:
-    # GitHub Actions에서 제공하는 가상 환경(우분투 최신 버전)을 사용합니다.
     runs-on: ubuntu-latest
 
     steps:
       - name: 레포지토리 체크아웃
-        # actions/checkout@v3 액션을 사용해, 현재 커밋된 소스를 받아옵니다.
+        # actions/checkout@v3 액션을 사용하여 푸시된 코드 전체를 가져옵니다.
         uses: actions/checkout@v3
 
       - name: AWS 자격 증명 설정
-        # GitHub Actions가 AWS 리소스(S3)에 접근할 수 있도록 인증을 구성합니다.
+        # GitHub Actions에서 AWS 명령어를 사용할 수 있도록 자격 증명(IAM)을 구성합니다.
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          # GitHub Secrets에 저장한 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION을 불러옵니다.
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            ${{ secrets.AWS_REGION }}
 
       - name: 코드 압축
-        # 현재 워크스페이스(체크아웃된 레포지토리)를 소스 코드 전체로 보고, 날짜나 커밋 SHA 등을 붙여서 압축본을 만듭니다.
         run: |
-          zip -r source_code_$(date +'%Y%m%d_%H%M%S')_$GITHUB_SHA.zip .
+          # GitHub Actions 환경 변수인 GITHUB_SHA에서 앞 7자리를 잘라 사용
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+
+          # 날짜(YYYYMMDD_HHMMSS) + SHORT_SHA 조합으로 백업 파일명 생성
+          BACKUP_NAME="dailydevq-main-backup-$(date +'%Y%m%d_%H%M%S')-${SHORT_SHA}.zip"
+
+          # 현재 디렉터리(.) 전체를 압축
+          zip -r "$BACKUP_NAME" .
+
+          echo "Created backup file: $BACKUP_NAME"
 
       - name: S3 업로드
-        # 만든 압축 파일을 AWS CLI를 통해 S3 버킷에 업로드합니다.
         run: |
-          aws s3 cp source_code_$(date +'%Y%m%d_%H%M%S')_$GITHUB_SHA.zip s3://dailydevq-backup/backups/
+          # 다시 한 번 동일 로직으로 파일명 결정 (스텝이 분리되었으므로 변수 재설정)
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          BACKUP_NAME="dailydevq-main-backup-$(date +'%Y%m%d_%H%M%S')-${SHORT_SHA}.zip"
+
+          # S3 버킷에 업로드 (백업 전용 디렉터리인 backups/ 아래에 저장)
+          aws s3 cp "$BACKUP_NAME" s3://dailydevq-backup/backups/"$BACKUP_NAME"
