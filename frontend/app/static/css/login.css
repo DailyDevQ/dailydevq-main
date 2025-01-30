@@ -1,49 +1,154 @@
-/* frontend/app/static/css/style.css */
+/* frontend/app/static/css/login.css */
 
-body {
-  background-color: #f4f4f9;
-  font-family: 'Arial', sans-serif;
+/* -------------------------------
+  기본 설정 및 초기화
+---------------------------------- */
+/* 모든 요소의 기본 마진/패딩 제거 및 박스 모델 설정 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.card {
-  background-color: #ffffff;
+/* -------------------------------
+  전체 페이지 레이아웃 스타일
+---------------------------------- */
+body {
+  background-color: #f5f5f5; /* 배경색 조정 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* 시스템 폰트 스택 적용 */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* -------------------------------
+  로그인 카드 컨테이너 스타일
+---------------------------------- */
+.login-container {
+  background: #ffffff;
+  width: 400px; /* 고정 폭 설정 */
+  padding: 40px;
+  border-radius: 12px; /* 둥근 모서리 */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 부드러운 그림자 효과 */
+}
+
+/* -------------------------------
+  타이틀 영역 스타일
+---------------------------------- */
+.main-title {
+  font-size: 24px;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 700; /* 볼드체 적용 */
+}
+
+.sub-title {
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* -------------------------------
+  입력 필드 스타일
+---------------------------------- */
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dddddd;
+  border-radius: 6px; /* 입력 필드 둥근 모서리 */
+  margin-bottom: 15px;
+  font-size: 14px;
+  transition: border-color 0.3s; /* 포커스 시 부드러운 전환 */
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #007bff; /* 포커스 시 파란색 테두리 */
+}
+
+/* -------------------------------
+  체크박스 영역 스타일
+---------------------------------- */
+.checkbox-group {
+  margin: 15px 0;
+  font-size: 14px;
+  color: #666666;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 체크박스와 텍스트 간격 */
+}
+
+/* -------------------------------
+  버튼 공통 스타일
+---------------------------------- */
+.login-btn {
+  width: 100%;
+  padding: 12px;
   border: none;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* 아이콘과 텍스트 간격 */
+  transition: opacity 0.3s; /* 호버 효과 */
 }
 
-h1 {
-  font-weight: bold;
+.login-btn:hover {
+  opacity: 0.9; /* 호버 시 투명도 효과 */
 }
 
-.btn {
-  font-size: 1.1rem;
-  font-weight: bold;
-  padding: 0.8rem 1rem;
-  border-radius: 5px;
+/* -------------------------------
+  이메일 로그인 버튼
+---------------------------------- */
+.email-login {
+  background: #007bff; /* 파란색 배경 */
+  color: white;
+  margin-top: 20px;
 }
 
-.btn-danger:hover {
-  background-color: #d32f2f;
+/* -------------------------------
+  소셜 로그인 버튼 색상 설정
+---------------------------------- */
+.google {
+  background: #4285f4; /* Google 파랑 */
+  color: white;
 }
 
-.btn-warning:hover {
-  background-color: #fbc02d;
+.kakao {
+  background: #fee500; /* Kakao 노랑 */
+  color: #3c1e1e; /* 어두운 갈색 텍스트 */
 }
 
-.btn-success:hover {
-  background-color: #388e3c;
+.naver {
+  background: #03c75a; /* Naver 초록 */
+  color: white;
 }
 
-.btn-dark:hover {
-  background-color: #212121;
+.github {
+  background: #333333; /* GitHub 검정 */
+  color: white;
 }
 
-body {
-  background-color: #f8f9fa;
-  font-family: Arial, sans-serif;
+/* -------------------------------
+  소셜 로그인 구분선 스타일
+---------------------------------- */
+.social-login {
+  margin-top: 30px;
+  border-top: 1px solid #eeeeee;
+  padding-top: 20px;
 }
 
+/* -------------------------------
+  로딩 오버레이 스타일
+---------------------------------- */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -51,13 +156,45 @@ body {
   width: 100%;
   height: 100%;
   background: rgba(255, 255, 255, 0.8);
-  display: none; /* 기본 상태에서 숨김 */
+  display: none; /* 기본적으로 숨김 처리 */
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 9999; /* 최상위 레이어 */
 }
 
 .spinner-border {
   width: 4rem;
   height: 4rem;
+  border-width: 0.25em;
+}
+
+/* -------------------------------
+  반응형 디자인 (모바일 대응)
+---------------------------------- */
+@media (max-width: 480px) {
+  .login-container {
+    width: 90%; /* 모바일에서 너비 조정 */
+    padding: 25px;
+  }
+  
+  .main-title {
+    font-size: 20px; /* 타이틀 크기 축소 */
+  }
+}
+
+
+.social-login {
+  gap: 18px; /* 버튼 사이 간격 2배로 증가 */
+  padding: 25px 0; /* 상하 패딩 추가 */
+}
+
+.login-btn {
+  margin: 14px 0; /* 버튼 상하 마진 증가 */
+  padding: 14px; /* 내부 패딩 확대 */
+  gap: 12px; /* 아이콘-텍스트 간격 증가 */
+}
+
+.social-icon {
+  width: 24px; /* 아이콘 크기 확대 */
+  height: 24px;
 }
