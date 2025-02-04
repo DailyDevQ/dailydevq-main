@@ -58,4 +58,4 @@ jobs:
           BACKUP_NAME="dailydevq-main-backup-$(date +'%Y%m%d_%H%M%S')-${SHORT_SHA}.zip"
 
           # S3 버킷에 업로드 (백업 전용 디렉터리인 backups/ 아래에 저장)
-          aws s3 cp "$BACKUP_NAME" s3://dailydevq-backup/backups/"$BACKUP_NAME"
+          aws s3 cp "$BACKUP_NAME" "AWS_S3_BUCKET_URL/$BACKUP_NAME"
