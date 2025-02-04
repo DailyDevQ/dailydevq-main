@@ -25,6 +25,9 @@ jobs:
   backup_s3_job:
     runs-on: ubuntu-latest
 
+    env:
+      AWS_S3_BUCKET_URL: ${{ secrets.AWS_S3_BUCKET_URL }}
+
     steps:
       - name: 레포지토리 체크아웃
         # actions/checkout@v3 액션을 사용하여 푸시된 코드 전체를 가져옵니다.
@@ -58,4 +61,4 @@ jobs:
           BACKUP_NAME="dailydevq-main-backup-$(date +'%Y%m%d_%H%M%S')-${SHORT_SHA}.zip"
 
           # S3 버킷에 업로드 (백업 전용 디렉터리인 backups/ 아래에 저장)
-          aws s3 cp "$BACKUP_NAME" "AWS_S3_BUCKET_URL/$BACKUP_NAME"
+          aws s3 cp "$BACKUP_NAME" "${AWS_S3_BUCKET_URL%/}/$BACKUP_NAME"
