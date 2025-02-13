@@ -88,17 +88,17 @@ body {
   버튼 공통 스타일
 ---------------------------------- */
 .login-btn {
-  width: 100%;
-  padding: 12px;
   border: none;
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex; /* 가운데 정렬을 위해 inline-flex 사용 */
   justify-content: center;
   align-items: center;
   gap: 8px; /* 아이콘과 텍스트 간격 */
   transition: opacity 0.3s; /* 호버 효과 */
+  text-decoration: none; /* a 태그 밑줄 제거 */
+  color: #fff; /* 기본 글자색(필요 시) */
 }
 
 .login-btn:hover {
@@ -109,41 +109,57 @@ body {
   이메일 로그인 버튼
 ---------------------------------- */
 .email-login {
+  width: 100%;
   background: #007bff; /* 파란색 배경 */
   color: white;
   margin-top: 20px;
+  padding: 12px; 
 }
 
 /* -------------------------------
-  소셜 로그인 버튼 색상 설정
+  (원형) 소셜 로그인 버튼 스타일
 ---------------------------------- */
+.social-circle-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;     /* 아이콘 간 간격 */
+  margin-top: 30px;
+}
+
+/* 원형 소셜 버튼 */
+.social-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0; /* 텍스트 없애면 간격 필요 X */
+}
+
+/* 아이콘 크기 */
+.social-circle img {
+  width: 28px;  
+  height: 28px;
+}
+
+/* 브랜드별 배경색 (필요에 따라 수정 가능) */
 .google {
-  background: #4285f4; /* Google 파랑 */
-  color: white;
+  background: #4285f4; /* 구글 파랑 */
 }
 
 .kakao {
-  background: #fee500; /* Kakao 노랑 */
-  color: #3c1e1e; /* 어두운 갈색 텍스트 */
+  background: #fee500; /* 카카오 노랑 */
+  color: #3c1e1e;
 }
 
 .naver {
-  background: #03c75a; /* Naver 초록 */
-  color: white;
+  background: #03c75a; /* 네이버 초록 */
 }
 
 .github {
-  background: #333333; /* GitHub 검정 */
-  color: white;
-}
-
-/* -------------------------------
-  소셜 로그인 구분선 스타일
----------------------------------- */
-.social-login {
-  margin-top: 30px;
-  border-top: 1px solid #eeeeee;
-  padding-top: 20px;
+  background: #333333; /* 깃허브 검정 */
 }
 
 /* -------------------------------
@@ -180,21 +196,14 @@ body {
   .main-title {
     font-size: 20px; /* 타이틀 크기 축소 */
   }
-}
 
+  .social-circle {
+    width: 48px;
+    height: 48px;
+  }
 
-.social-login {
-  gap: 18px; /* 버튼 사이 간격 2배로 증가 */
-  padding: 25px 0; /* 상하 패딩 추가 */
-}
-
-.login-btn {
-  margin: 14px 0; /* 버튼 상하 마진 증가 */
-  padding: 14px; /* 내부 패딩 확대 */
-  gap: 12px; /* 아이콘-텍스트 간격 증가 */
-}
-
-.social-icon {
-  width: 24px; /* 아이콘 크기 확대 */
-  height: 24px;
+  .social-circle img {
+    width: 22px;
+    height: 22px;
+  }
 }
