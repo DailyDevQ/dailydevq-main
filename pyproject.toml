@@ -3,6 +3,10 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+# 패키지 디스커버리 설정 (setuptools.find_packages 사용)
+[tool.setuptools.packages.find]
+where = ["src"]  # src 폴더 내부에서 패키지 탐색
+
 # 프로젝트 기본 정보
 [project]
 name = "dailydevq"
