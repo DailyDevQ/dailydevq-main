@@ -1,0 +1,62 @@
+# .github/workflows/ci.yml
+
+name: CI Pipeline  # GitHub Actions 워크플로우 이름
+
+on:
+  push:
+    branches:
+      - master  # master에 push되면 실행
+      - dev     # dev 브랜치에 push되면 실행
+  pull_request:
+    branches:
+      - master  # master로 PR이 생성되면 실행
+      - dev     # dev로 PR이 생성되면 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 최신 Ubuntu 환경에서 실행
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        # 최신 코드 가져오기 (GitHub Actions에서 실행되는 CI 환경으로 코드 다운로드)
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"  # Python 3.10 환경 설정
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  # 최신 pip 설치
+          pip install -e .[dev,test]  # pyproject.toml 기반 패키지 설치
+
+      - name: Run Lint (flake8)
+        run: flake8 .
+        # 코드 스타일 체크
+
+      - name: Run Formatting Check (black)
+        run: black --check .
+        # 코드 포맷 검사
+
+      - name: Run Tests (pytest)
+        run: pytest --cov=src
+        # 테스트 실행 및 커버리지 측정
+
+      - name: Upload Coverage Report
+        uses: codecov/codecov-action@v3
+        # 테스트 커버리지 리포트 업로드
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/master'  # master 브랜치에 push될 때만 실행
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to Production
+        run: |
+          echo "Deploying application..."
+          # 여기에 배포 스크립트 추가 (예: AWS S3, Lambda, ECS 등)
