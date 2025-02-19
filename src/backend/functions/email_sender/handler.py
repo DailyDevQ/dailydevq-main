@@ -2,6 +2,7 @@
 
 import boto3
 
+
 def lambda_handler(event, context):
     ses_client = boto3.client("ses")
     response = ses_client.send_email(

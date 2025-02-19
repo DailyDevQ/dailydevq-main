@@ -1,8 +1,9 @@
 # ./src/tests/test_email_sender.py
 
-import pytest
+
 from unittest.mock import patch
 from src.backend.functions.email_sender.handler import lambda_handler
+
 
 @patch("boto3.client")
 def test_lambda_handler(mock_boto_client):
