@@ -17,7 +17,7 @@ def test_lambda_handler(mock_boto_client):
     event = {
         "to_email": "test@example.com",
         "subject": "Test Subject",
-        "body": "This is a test email."
+        "body": "This is a test email.",
     }
 
     response = lambda_handler(event, None)
