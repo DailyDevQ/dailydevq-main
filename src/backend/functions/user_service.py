@@ -8,12 +8,13 @@ from botocore.exceptions import ClientError
 
 # DynamoDB 클라이언트 생성
 dynamodb = boto3.resource(
-    "dynamodb", 
+    "dynamodb",
     region_name="ap-northeast-2",
-    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
 )
 users_table = dynamodb.Table("Users")  # 테이블 이름 확인
+
 
 def save_user(email, name, profile_url, login_type):
     """
@@ -67,6 +68,7 @@ def save_user(email, name, profile_url, login_type):
 
         return user_data
 
+
 def get_user_from_db(user_id):
     """
     DynamoDB에서 사용자 정보를 검색합니다.
@@ -110,6 +112,7 @@ def get_user_by_id(user_id):
     except ClientError as e:
         print(f"사용자 정보를 검색하는 중 오류가 발생했습니다: {e}")
         return None
+
 
 def delete_user(user_id):
     """
