@@ -1,4 +1,4 @@
 # .flaskenv
-FLASK_APP=frontend/app/app.py
+FLASK_APP=frontend.app.app
 FLASK_ENV=development
 FLASK_DEBUG=1
