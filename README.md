@@ -6,10 +6,13 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4.svg?logo=terraform)
 ![AWS](https://img.shields.io/badge/Cloud-AWS-FF9900.svg?logo=amazon-aws)
+![Cloudflare](https://img.shields.io/badge/CDN-Cloudflare-F38020.svg?logo=cloudflare)
+![React + TypeScript](https://img.shields.io/badge/React%20%2B%20TypeScript-61DAFB.svg?logo=react&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg?logo=github-actions)
 ![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991.svg?logo=openai)
 ![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+
 <!-- ![Build Status](https://github.com/DailyDevQ/dailydevq-main/actions/workflows/main.yml/badge.svg) -->
 
 DailyDevQ는 개발자를 위한 AI 기반의 기술 면접 질문 및 학습 관리 플랫폼입니다. AWS 서버리스 아키텍처와 다양한 소셜 로그인 기능을 활용하여 사용자 친화적이고 효율적인 학습 환경을 제공합니다.
@@ -29,6 +32,7 @@ DailyDevQ는 개발자를 위한 AI 기반의 기술 면접 질문 및 학습 �
 ## 기술 스택
 
 ### 프론트엔드
+- **React + TypeScript**: 동적 UI 구현 및 타입 안정성 확보
 - **Flask**: 웹 프레임워크
 - **Jinja2**: 템플릿 엔진
 - **Bootstrap 5**: UI 구성
@@ -42,6 +46,7 @@ DailyDevQ는 개발자를 위한 AI 기반의 기술 면접 질문 및 학습 �
 
 ### 인프라
 - **AWS**: EC2, S3, IAM, VPC
+- **Cloudflare**: CDN 및 DNS, 보안/성능 최적화
 - **Terraform**: 인프라 코드 관리
 - **GitHub Actions**: CI/CD 파이프라인 구축
 
