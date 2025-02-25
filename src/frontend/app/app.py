@@ -20,7 +20,7 @@ import requests
 
 # 프로젝트 내부에서 만든 DynamoDB 관련 함수 임포트
 # Import custom functions for interacting with DynamoDB
-from backend.functions.user_service import save_user, get_user_from_db
+from src.backend.functions.user_service import save_user, get_user_from_db
 
 # Flask 애플리케이션의 Blueprint 임포트
 # Import the main Blueprint containing application routes
