@@ -85,6 +85,3 @@ config.local.py
 node_modules/
 
 dailydevq/
-src/frontend/app/react/package-lock.json
-src/frontend/app/react/package.json
-src/frontend/app/react/tsconfig.json
