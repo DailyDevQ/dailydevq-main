@@ -1,0 +1,48 @@
+export const content = {
+  kr: {
+    title: "AI로 기술 면접 마스터하기",
+    description:
+      "AI 기반 질문 생성기로 다음 기술 면접을 준비하세요. 개인화되고, 적응형이며, 항상 최신 상태를 유지합니다.",
+    getStarted: "시작하기",
+    learnMore: "더 알아보기",
+    features: "주요 기능",
+    aiQuestions: "AI 기반 질문",
+    aiQuestionsDesc: "우리의 고급 AI는 귀하의 기술 수준과 선호도에 맞춘 관련성 높고 도전적인 질문을 생성합니다.",
+    multipleLanguages: "다양한 언어",
+    multipleLanguagesDesc: "다양한 프로그래밍 언어와 프레임워크로 연습하여 귀하의 요구를 충족시킵니다.",
+    progressTracking: "진행 상황 추적",
+    progressTrackingDesc: "상세한 분석과 성과 인사이트로 귀하의 개선 상황을 모니터링합니다.",
+    testimonials: "사용자 후기",
+    readyToAce: "다음 면접을 완벽하게 준비하시겠습니까?",
+    joinThousands: "DailyDevQ로 면접 실력을 향상시키는 수천 명의 개발자들과 함께하세요.",
+    getStartedNow: "지금 시작하기",
+    termsOfService: "서비스 약관",
+    privacy: "개인정보 처리방침",
+    login: "로그인",
+    subscribe: "구독하기",
+  },
+  us: {
+    title: "Master Your Tech Interviews with AI",
+    description:
+      "Prepare for your next tech interview with our AI-powered question generator. Personalized, adaptive, and always up-to-date.",
+    getStarted: "Get Started",
+    learnMore: "Learn More",
+    features: "Key Features",
+    aiQuestions: "AI-Powered Questions",
+    aiQuestionsDesc:
+      "Our advanced AI generates relevant and challenging questions tailored to your skill level and preferences.",
+    multipleLanguages: "Multiple Languages",
+    multipleLanguagesDesc: "Practice in various programming languages and frameworks to suit your needs.",
+    progressTracking: "Progress Tracking",
+    progressTrackingDesc: "Monitor your improvement with detailed analytics and performance insights.",
+    testimonials: "What Our Users Say",
+    readyToAce: "Ready to Ace Your Next Interview?",
+    joinThousands: "Join thousands of developers who are leveling up their interview skills with DailyDevQ.",
+    getStartedNow: "Get Started Now",
+    termsOfService: "Terms of Service",
+    privacy: "Privacy",
+    login: "Log In",
+    subscribe: "Subscribe",
+  },
+}
+
